@@ -25,27 +25,27 @@
         </ion-item>
     }
 }
-<ion-list>
+<IonList>
     @for (int i = 0; i < Items.Count; i++)
     {
         var item = Items.ElementAt(i);
-        <ion-item-sliding>
+        <IonItemSliding>
             <IonItem>
-                <ion-label>@item.Key</ion-label>
-                <ionI type="text" value="@item.Value" @onchange="args => UpdateItem(item.Key, (string) args.Value)"> </ionI>
+                <IonLabel>@item.Key</IonLabel>
+                <IonInput Value="@item.Value" ValueChanged="(string s) => { _ = UpdateItem(item.Key, s);}"></IonInput>
             </IonItem>
-            <ion-item-options side="end">
-                <ion-item-option @onclick="() => RemoveItem(item.Key)">Remove</ion-item-option>
-            </ion-item-options>
-        </ion-item-sliding>
+            <IonItemOptions side="end">
+                <IonItemOption  OnClick="()=>RemoveItem(item.Key)">Remove</IonItemOption>
+            </IonItemOptions>
+        </IonItemSliding>
     }
 
     <IonItem>
         <IonInput type="text" @bind-Value="@newKey" placeholder="Key"> </IonInput>
         <IonInput type="text" @bind-Value="@newValue" placeholder="value" > </IonInput>
-        <ion-button @onclick="AddItem" class="btn btn-primary">Add</ion-button>
+        <IonButton OnClick="()=> AddItem()"  class="btn btn-primary">Add</IonButton>
     </IonItem>
-</ion-list>
+</IonList>
 
 @code {
 

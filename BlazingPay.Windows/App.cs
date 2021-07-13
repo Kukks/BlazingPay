@@ -30,9 +30,9 @@ namespace BlazingPay.Windows
                     // collection.AddD
                     
                     collection.AddDataProtection();
-                    collection.AddSingleton<INotificationManager, WebNotificationManager>();
-                    collection.AddSingleton<IConfigProvider, JsInteropConfigProvider>();
-                    collection.AddSingleton<ISecureConfigProvider, JsInteropSecureConfigProvider >();
+                    collection.AddScoped<INotificationManager, WebNotificationManager>();
+                    collection.AddScoped<IConfigProvider, JsInteropConfigProvider>();
+                    collection.AddScoped<ISecureConfigProvider, JsInteropSecureConfigProvider >();
                     // collection.AddSingleton<INotificationManager, StubNotificationManager>();}));
                 }));
         }

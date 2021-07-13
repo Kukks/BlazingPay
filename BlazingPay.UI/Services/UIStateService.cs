@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazingPay.Abstractions.Contracts;
+using Microsoft.AspNetCore.Http;
 
 namespace BlazingPay.UI.Services
 {
@@ -50,6 +51,9 @@ namespace BlazingPay.UI.Services
             
             return Task.CompletedTask;
         }
+
+        public string EntryData { get; set; }
+        public IFormCollection Form { get; set; }
 
         public event Action StateChanged;
     }

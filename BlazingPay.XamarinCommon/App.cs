@@ -29,10 +29,8 @@ namespace BlazingPay.XamarinCommon
 
                     services.AddUIServices();
                     // Register app-specific services
-                    services.AddSingleton<ICounterState, CounterState>();
                     services.AddSingleton<ILocalContentFetcher, FileProviderLocalContentFetcher>();
                     services.AddSingleton<IWebsiteLauncher, XamarinEssentialsWebsiteLauncher>();
-                    services.AddSingleton<IWeatherForecastFetcher, WeatherForecastFetcher>();
                     try
                     {
                         Preferences.Get("ddd", "dd");

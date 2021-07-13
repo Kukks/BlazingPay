@@ -21,10 +21,8 @@ namespace BlazingPay.WASM
             builder.RootComponents.Add<App>("app");
 
             builder.Services.AddUIServices();
-            builder.Services.AddSingleton<ICounterState, CounterState>();
             builder.Services.AddSingleton<ILocalContentFetcher, HttpClientLocalContentFetcher>();
             builder.Services.AddSingleton<IWebsiteLauncher, JsInteropWebsiteLauncher>();
-            builder.Services.AddSingleton<IWeatherForecastFetcher, WeatherForecastFetcher>();
             builder.Services.AddSingleton<IConfigProvider, JsInteropConfigProvider>();
             builder.Services.AddSingleton<ISecureConfigProvider, PasswordEncryptedJsInteropSecureConfigProvider>();
             builder.Services.AddScoped<INotificationManager, WebNotificationManager>();

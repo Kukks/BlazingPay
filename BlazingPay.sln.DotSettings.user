@@ -1,4 +1,5 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/CodeInspection/Highlighting/AnalysisEnabled/@EntryValue">VISIBLE_FILES</s:String>
+	
 	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=890e5da9_002D12e6_002D46f3_002Da046_002Da1b72ce9980c_0023BlazingPay_002EmacOS/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=f4335659_002D06c7_002D408d_002Dadcb_002Dc0e9bf7f0936_0023BlazingPay_002EiOS/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

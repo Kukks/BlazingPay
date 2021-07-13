@@ -17,7 +17,7 @@ namespace BlazingPay.WASM.Services
 
         public async Task<Stream> Fetch(string path)
         {
-            var fileInfo = await _httpClient.GetAsync("_content/BlazingPay.UI/weather.json");
+            var fileInfo = await _httpClient.GetAsync(path);
             if (fileInfo.IsSuccessStatusCode)
             {
                 return await fileInfo.Content.ReadAsStreamAsync();

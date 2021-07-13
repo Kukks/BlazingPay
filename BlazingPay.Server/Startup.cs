@@ -32,10 +32,8 @@ namespace BlazingPay.Server
             services.AddServerSideBlazor();
 
             services.AddUIServices();
-            services.AddSingleton<ICounterState, CounterState>();
             services.AddScoped<IWebsiteLauncher, JsInteropWebsiteLauncher>();
             services.AddSingleton<ILocalContentFetcher, FileProviderLocalContentFetcher>();
-            services.AddSingleton<IWeatherForecastFetcher, WeatherForecastFetcher>();
             services.AddScoped<IConfigProvider, JsInteropConfigProvider>();
             services.AddScoped<ISecureConfigProvider, JsInteropSecureConfigProvider>();
             services.AddSingleton(provider =>

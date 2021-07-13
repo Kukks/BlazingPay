@@ -16,14 +16,9 @@ namespace BlazingPay.Abstractions.Services
 
         public Task<Stream> Fetch(string path)
         {
-            var fileInfo = _fileProvider.GetFileInfo("_content/BlazingPay.UI/weather.json");
+            var fileInfo = _fileProvider.GetFileInfo(path);
 
-            if (fileInfo != null && fileInfo.Exists)
-            {
-                return Task.FromResult(fileInfo.CreateReadStream());
-            }
-
-            return Task.FromResult<Stream>(null);
+            return fileInfo is {Exists: true} ? Task.FromResult(fileInfo.CreateReadStream()) : Task.FromResult<Stream>(null);
         }
     }
 }

@@ -16,7 +16,9 @@ namespace BlazingPay.XamarinCommon.Services
 
         public Task Set<T>(string key, T value)
         {
-            if (value.Equals(default(T)))
+            var defaultValue = default(T);
+            
+            if ((value is null && defaultValue is null) || (value?.Equals(default(T))??false) is true)
             {
                 Preferences.Remove(key);
             }

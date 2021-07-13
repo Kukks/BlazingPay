@@ -33,7 +33,9 @@ namespace BlazingPay.WebCommon
 
         public virtual async Task Set<T>(string key, T value)
         {
-            if (value.Equals(default(T)))
+            var defaultValue = default(T);
+            
+            if ((value is null && defaultValue is null) || (value?.Equals(default(T))??false) is true)
             {
                 await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", key);
             }
