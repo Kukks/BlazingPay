@@ -6,6 +6,7 @@ using Android.Runtime;
 using Android.OS;
 using Android.Views;
 using BlazingPay.Abstractions.Contracts;
+using BlazingPay.UI.Services;
 using BlazingPay.XamarinCommon;
 using LocalNotifications.Droid;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +20,7 @@ namespace BlazingPay.Droid
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         private App _app;
-        private IUIStateService _uiStateService;
+        private StackService _stackService;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -34,7 +35,7 @@ namespace BlazingPay.Droid
             _app = new App(fileProvider,
                 collection => { collection.AddSingleton<INotificationManager, AndroidNotificationManager>(); });
             LoadApplication(_app);
-            _uiStateService = _app.ServiceProvider.GetService<IUIStateService>();
+            _stackService = _app.ServiceProvider.GetService<StackService>();
             CreateNotificationFromIntent(Intent);
         }
 
@@ -48,9 +49,9 @@ namespace BlazingPay.Droid
 
         public override void OnBackPressed()
         {
-            if (_uiStateService.AnyStackState)
+            if (_stackService.AnyStackState)
             {
-                _uiStateService.InvokeStackState().GetAwaiter().GetResult();
+                _stackService.InvokeStackState().GetAwaiter().GetResult();
                 return;
             }
 
