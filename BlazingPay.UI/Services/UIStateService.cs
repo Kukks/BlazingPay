@@ -1,6 +1,7 @@
 using System;
+using System.Collections.Generic;
 using BlazingPay.Abstractions.Contracts;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
 namespace BlazingPay.UI.Services
 {
@@ -21,7 +22,7 @@ namespace BlazingPay.UI.Services
       
 
         public string EntryData { get; set; }
-        public IFormCollection Form { get; set; }
+        public Dictionary<string, StringValues> Form { get; set; }
 
         public event Action StateChanged;
     }

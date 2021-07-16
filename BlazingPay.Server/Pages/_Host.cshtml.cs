@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using BlazingPay.Abstractions.Contracts;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,7 @@ namespace BlazingPay.Server.Pages
         {
             if (Request.HasFormContentType)
             {
-                _uiStateService.Form = Request.Form;
+                _uiStateService.Form = Request.Form.ToDictionary(pair => pair.Key, pair => pair.Value);
             }
             if (Request.ContentType == "application/json")
             {
