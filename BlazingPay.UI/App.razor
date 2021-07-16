@@ -1,3 +1,6 @@
+@using BlazingPay.UI.Services
+@inject ThemeSwitcher ThemeSwitcher
+@inject UIPreferencesAccessor UIPreferencesAccessor
 <IonApp>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
@@ -17,3 +20,18 @@
         </NotFound>
     </Router>
 </IonApp>
+
+@code
+{
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var uiPref = await UIPreferencesAccessor.Get();
+            if (uiPref.DarkMode.HasValue)
+            {
+                await ThemeSwitcher.ToggleDark(uiPref.DarkMode ?? false);
+            }
+        }
+    }
+}

@@ -1,0 +1,32 @@
+@page "/preferences"
+@using BlazingPay.UI.Services
+@inject UIPreferencesAccessor UIPreferencesAccessor
+@inject UIStateService UiStateService
+<IonContent class="ion-padding">
+    <IonList>
+        <IonItem>
+            <IonList>Dark Mode</IonList>
+            <IonToggle @bind-Value="DarkMode"></IonToggle>
+        </IonItem>
+    </IonList>
+</IonContent>
+@code {
+
+    private UIPreferences UIPreferences;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        UiStateService.Title = "Preferences";
+        UIPreferences = await UIPreferencesAccessor.Get();
+        await base.OnInitializedAsync();
+    }
+
+    public bool DarkMode
+    {
+        get => UIPreferences.DarkMode.GetValueOrDefault(false);
+        set { UIPreferences.DarkMode = value;
+            _ = UIPreferencesAccessor.Set(UIPreferences);
+        }
+    }
+
+}

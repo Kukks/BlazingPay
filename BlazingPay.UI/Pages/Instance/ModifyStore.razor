@@ -1,0 +1,78 @@
+@page "/instances/{Id}/stores/{storeId}"
+@using BlazingPay.Abstractions.Models
+@using BlazingPay.UI.Services
+@using BTCPayServer.Client
+@using BTCPayServer.Client.Models
+@inject InstanceRepository _instanceRepository
+@inject UIStateService _uiStateService
+
+
+<IonContent>
+    <IonLoading Visible="@Loading" message="Loading store"></IonLoading>
+    @if (Loading)
+    {
+        <IonSkeletonText animated style="width: 60%"></IonSkeletonText>
+        <IonSkeletonText animated></IonSkeletonText>
+        <IonSkeletonText animated style="width: 88%"></IonSkeletonText>
+        <IonSkeletonText animated style="width: 70%"></IonSkeletonText>
+        <IonSkeletonText animated style="width: 60%"></IonSkeletonText>
+    }
+    else
+    {
+        <IonList>
+            <IonListHeader>Payment methods</IonListHeader>
+            @if (PaymentMethods != null)
+            {
+                foreach (var paymentMethod in PaymentMethods)
+                {
+                    <IonItem button detail>
+                        <IonLabel>@paymentMethod</IonLabel> @(StorePaymentMethods.Any(data => @paymentMethod.Equals(data.CryptoCode, StringComparison.InvariantCultureIgnoreCase)) ? "Configured" : "Configure")
+                    </IonItem>
+                }
+            }
+        </IonList>
+    }
+</IonContent>
+
+@code {
+    public bool Loading { get; set; } = true;
+
+    [Parameter]
+    public string Id { get; set; }
+
+    [Parameter]
+    public string StoreId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        Instance = await _instanceRepository.Get(Id);
+        Client = Instance.Construct();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Store = await Client.GetStore(StoreId);
+
+            PaymentMethods = (await Client.GetServerInfo()).SupportedPaymentMethods;
+            StorePaymentMethods = await Client.GetStoreOnChainPaymentMethods(StoreId);
+            Loading = false;
+            _uiStateService.Title = $"Manage your store - {Store.Name}";
+            StateHasChanged();
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public IEnumerable<OnChainPaymentMethodData> StorePaymentMethods { get; set; }
+
+    public IEnumerable<string> PaymentMethods { get; set; }
+
+    public StoreData Store { get; set; }
+
+    public BTCPayServerClient Client { get; set; }
+
+    public BTCPayServerInstance Instance { get; set; }
+
+}

@@ -1,0 +1,103 @@
+@using BlazingPay.Abstractions.Models
+@using BTCPayServer.Client
+@using BTCPayServer.Client.Models
+@inject NavigationManager NavigationManager
+<IonModal @bind-Visible="@Visible">
+    <IonHeader>
+        <IonToolbar>
+            <IonTitle>Modal Header</IonTitle>
+            <IonButtons slot="primary">
+                <IonButton OnClick="() => Visible = false">
+                    <IonIcon slot="icon-only" name="close"></IonIcon>
+                </IonButton>
+            </IonButtons>
+        </IonToolbar>
+    </IonHeader>
+    <IonContent class="ion-padding">
+        <IonItem>
+            <IonLabel>Store name</IonLabel>
+            <IonInput @bind-Value="StoreName"></IonInput>
+        </IonItem>
+        <IonButton color="primary" OnClick="CreateStore"> Create</IonButton>
+    </IonContent>
+    <IonToast message="Store created" @bind-Visible="ToastShown" Buttons="toastButtons"></IonToast>
+</IonModal>
+
+@code {
+
+    public bool ToastShown { get; set; }
+    public IonToast.IonToastButton[] toastButtons;
+
+    protected override async Task OnInitializedAsync()
+    {
+        toastButtons = new[]
+        {
+            new IonToast.IonToastButton()
+            {
+                Options = new Dictionary<string, object>()
+                {
+                    {"text", "Configure"},
+                    {"icon", "caret-forward-circle"}
+                },
+                Handler = ConfigureStore
+            }
+        };
+        await base.OnInitializedAsync();
+    }
+
+    private Task ConfigureStore(IonToast.IonToastButtonHandlerData arg)
+    {
+        NavigationManager.NavigateTo($"instances/{InstanceId}/stores/{StoreId}");
+        return Task.CompletedTask;
+    }
+
+    private bool _visible;
+
+    [Parameter]
+    public bool Visible
+    {
+        get => _visible;
+        set
+        {
+            if (_visible != value)
+            {
+                _ = VisibleChanged.InvokeAsync(value);
+            }
+            _visible = value;
+            if (!_visible)
+            {
+                StoreName = "";
+            }
+        }
+    }
+
+    public string StoreName { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnStoreCreated { get; set; }
+
+    [Parameter]
+    public string InstanceId { get; set; }
+
+    [Parameter]
+    public BTCPayServerClient Client { get; set; }
+
+
+    public async Task CreateStore()
+    {
+        var store = await Client.CreateStore(new CreateStoreRequest()
+        {
+            Name = string.IsNullOrEmpty(StoreName) ? "New store" : StoreName
+        });
+        await OnStoreCreated.InvokeAsync(store.Id);
+        StoreId = store.Id;
+        ToastShown = true;
+        Visible = false;
+    }
+
+    public string StoreId { get; set; }
+
+}

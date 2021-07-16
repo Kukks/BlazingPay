@@ -1,0 +1,118 @@
+@page "/instances/{Id}"
+@page "/instances/{Id}/stores"
+@using BlazingPay.Abstractions.Models
+@using BlazingPay.UI.Services
+@using BTCPayServer.Client
+@using BTCPayServer.Client.Models
+@inject InstanceRepository InstanceRepository
+@inject UIStateService UIStateService
+
+<IonContent>
+
+    <IonLoading Visible="@Loading" message="Loading stores"></IonLoading>
+    @if (Loading)
+    {
+        <IonSkeletonText animated style="width: 60%"></IonSkeletonText>
+        <IonSkeletonText animated></IonSkeletonText>
+        <IonSkeletonText animated style="width: 88%"></IonSkeletonText>
+        <IonSkeletonText animated style="width: 70%"></IonSkeletonText>
+        <IonSkeletonText animated style="width: 60%"></IonSkeletonText>
+    }
+    else
+    {
+        <IonList>
+            @foreach (var store in _stores)
+            {
+                <IonItemSliding>
+                    <IonItemOptions side="start">
+                        <IonItemOption href="@($"/instances/{Id}/stores/{store.Id}")">Modify</IonItemOption>
+                    </IonItemOptions>
+                    <IonItem>
+                        <IonLabel>@store.Name</IonLabel>
+                    </IonItem>
+                    
+                    <IonItemOptions side="end">
+                        <IonItemOption href="@($"/instances/{Id}/stores/{store.Id}/invoices")">Invoices</IonItemOption>
+                        <IonItemOption href="@($"/instances/{Id}/stores/{store.Id}/pos")">POS</IonItemOption>
+                    </IonItemOptions>
+                </IonItemSliding>
+            }
+            @if (_stores.Any() is false)
+            {
+                <IonItem>
+                    <IonLabel >
+                        <h1 class="ion-text-center">No stores</h1>
+                    </IonLabel>
+                </IonItem>
+            }
+            
+        </IonList>
+        @if (CanCreateStore)
+        {
+            <IonFab vertical="bottom" horizontal="end" slot="fixed">
+                <IonFabButton OnClick="() => AddStoreMode = true" >
+                    <IonIcon name="add"></IonIcon>
+                </IonFabButton>
+            </IonFab>
+            <AddStore Client="@Client" InstanceId="@Id"  OnStoreCreated="LoadStores" Visible="@AddStoreMode"></AddStore>
+        }
+    }
+</IonContent>
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; }
+
+    private bool CanCreateStore => Instance?.Permissions?.Any(permission => permission.Contains(Permission.Create(Policies.CanModifyStoreSettings))) is true;
+    
+    private bool Loading => _stores is null;
+
+    public BTCPayServerInstance Instance { get; set; }
+    public BTCPayServerClient Client { get; set; }
+
+    private IEnumerable<StoreData> _stores;
+
+    protected override async Task OnInitializedAsync()
+    {
+        UIStateService.Title = "Your stores";
+        await base.OnInitializedAsync();
+        await LoadClient();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadStores();
+        }
+        await base.OnAfterRenderAsync(firstRender);
+        
+    }
+
+    private async Task LoadClient()
+    {
+        Instance = await InstanceRepository.Get(Id);
+        
+        UIStateService.Title = $"Your stores {Instance.Label}";
+        Client = Instance.Construct();
+    }
+
+    public async Task LoadStores()
+    {
+        try
+        {
+
+            _stores = await Client.GetStores();
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
+
+    public bool AddStoreMode { get; set; }
+
+}

@@ -1,0 +1,70 @@
+@page "/instances/create/choose"
+@page "/instances/create"
+@using BlazingPay.UI.Services
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject NavigationManager NavigationManager
+@inject UIStateService UiStateService
+@inject StackService StackService
+@inject IJSRuntime JSRuntime
+
+
+<IonContent class="ion-padding">
+    <IonItem>
+        <IonLabel>Label</IonLabel>
+        <IonInput @bind-Value="Label"></IonInput>
+    </IonItem>
+    <IonItem>
+        <IonLabel>
+            Choose a pairing mechanism
+        </IonLabel>
+    </IonItem>
+    <IonCard button OnClick='async () => { await  OnMethodChosen("/instances/create/manual"); }'>
+        <IonCardHeader>
+            <IonCardTitle>Manual</IonCardTitle>
+        </IonCardHeader>
+    </IonCard>
+    <IonCard button>
+        <IonCardHeader>
+            <IonCardTitle>New account</IonCardTitle>
+            <IonCardSubtitle>Coming soon</IonCardSubtitle>
+        </IonCardHeader>
+    </IonCard>
+    <IonCard button>
+        <IonCardHeader>
+            <IonCardTitle>QR Code</IonCardTitle>
+            <IonCardSubtitle>Coming soon</IonCardSubtitle>
+        </IonCardHeader>
+    </IonCard>
+    <IonCard button>
+        <IonCardHeader>
+            <IonCardTitle>Authorization Flow</IonCardTitle>
+            <IonCardSubtitle>Coming soon</IonCardSubtitle>
+        </IonCardHeader>
+    </IonCard>
+</IonContent>
+
+@code {
+
+    public string Label { get; set; }
+
+    protected override void OnInitialized()
+    {
+        UiStateService.Title = "Connect to a BTCPay Server instance";
+        if (NavigationManager.TryGetQueryString<string>("label", out var label))
+        {
+            Label = label;
+        }
+    }
+
+    protected async Task OnMethodChosen(string url)
+    {
+        var currentUrl = string.IsNullOrEmpty(Label) ? NavigationManager.Uri : QueryHelpers.AddQueryString(NavigationManager.Uri, "label", Label);
+        await StackService.PushStackState(async () =>
+        {
+            await NavigationManager.NavigateBack(JSRuntime, currentUrl);
+        });
+        NavigationManager.NavigateTo(url);
+    }
+
+}

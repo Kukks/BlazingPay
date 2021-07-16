@@ -2,29 +2,26 @@
 @using BlazingPay.UI.Services
 
 @inject UIStateService UiStateService
+@inject UIPreferencesAccessor UIPreferencesAccessor
+@inject NavigationManager NavigationManager
 
-<ion-content class="ion-padding">
-    Welcome to your new app.
-    <hr/>
-    <SurveyPrompt Title="How is Blazor working for you?"/>
-    <hr/>
-    <h2>normal settings </h2>
-    <SettingsViewer Encrypted="false"></SettingsViewer>
-    <hr/>
-    <h2>Encrypted settings </h2>
-    <SettingsViewer Encrypted="true"></SettingsViewer>
-    <hr/>
-    <NotificationsTest></NotificationsTest>
-    <hr/>
-</ion-content>
+<IonContent class="ion-padding">
+    <IonSkeletonText animated style="width: 60%"></IonSkeletonText>
+    <IonSkeletonText animated></IonSkeletonText>
+    <IonSkeletonText animated style="width: 88%"></IonSkeletonText>
+    <IonSkeletonText animated style="width: 70%"></IonSkeletonText>
+    <IonSkeletonText animated style="width: 60%"></IonSkeletonText>
+
+</IonContent>
 
 @code{
 
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        UiStateService.Title = "Hello World!";
-        base.OnInitialized();
+        var preferences = await UIPreferencesAccessor.Get();
+        NavigationManager.NavigateTo(preferences.DefaultInstanceId is null ? "/instances/create/choose" : $"/instances/{preferences.DefaultInstanceId}");
+        await base.OnInitializedAsync();
     }
 
 }

@@ -1,26 +1,79 @@
-﻿@inject NavigationManager NavigationManager
-<ion-header>
-    <ion-toolbar color="primary">
-        <ion-title>Menu</ion-title>
-    </ion-toolbar>
-</ion-header>
+﻿@using BlazingPay.Abstractions.Models
+@implements IDisposable
+@inject NavigationManager NavigationManager
+@inject InstanceRepository InstanceRepository
+<IonHeader>
+    <IonToolbar color="primary">
+        <IonTitle>Menu</IonTitle>
+    </IonToolbar>
+</IonHeader>
 
-<ion-content>
-    <ion-list>
-        <ion-list-header>
-            Navigate
-        </ion-list-header>
-        <ion-menu-toggle auto-hide="false">
-            <ion-item href="" @onclick='() => NavigationManager.NavigateTo("")' @onclick:preventDefault="true">
-                <ion-icon slot="start" name='home'></ion-icon>
-                <ion-label>
-                    Home
-                </ion-label>
-            </ion-item>
-            <IonItem href="instances/create">
-                <IonIcon name="add-circle-outline" slot="start"></IonIcon>
-                <ion-label>Create Instance</ion-label>
+<IonContent>
+    <IonList>
+        <IonMenuToggle auto-hide="false">
+            @if (_instanceList != null)
+            {
+                if (_instanceList.Count > 1)
+                {
+                    <IonItemDivider>
+                        <IonLabel>BTCPay Instances</IonLabel>
+                    </IonItemDivider>
+                }
+                @foreach (var instance in _instanceList)
+                {
+                    <IonItem href="@($"instances/{instance.Key}")">
+                        <IonLabel>@(string.IsNullOrEmpty(instance.Value)? "Unlabelled Instance": instance.Value) </IonLabel>
+                    </IonItem>
+                }
+                <IonItem button href="instances/create">
+                    <IonLabel>Create Instance</IonLabel>
+                </IonItem>
+            }
+           
+            <IonItem href="preferences">
+                <IonIcon name="cog" slot="start"></IonIcon>
+                <IonLabel>Preferences</IonLabel>
             </IonItem>
-        </ion-menu-toggle>
-    </ion-list>
-</ion-content>
+        </IonMenuToggle>
+    </IonList>
+</IonContent>
+
+@code{
+
+    
+    protected override async Task OnInitializedAsync()
+    {
+        InstanceRepository.StateChanged += InstanceRepositoryOnStateChanged;;
+        await base.OnInitializedAsync();
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            
+            await LoadInstanceList();
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void InstanceRepositoryOnStateChanged()
+    {
+        _ = LoadInstanceList();
+    }
+
+    private async Task LoadInstanceList()
+    {
+        _instanceList = await InstanceRepository.GetList();
+        StateHasChanged();
+    }
+
+
+    public void Dispose()
+    {
+        InstanceRepository.StateChanged -= InstanceRepositoryOnStateChanged;
+    }
+
+    private Dictionary<string, string> _instanceList;
+}

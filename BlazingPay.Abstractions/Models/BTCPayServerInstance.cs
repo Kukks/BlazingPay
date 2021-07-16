@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using BlazingPay.Abstractions.Contracts;
 using BlazingPay.Abstractions.Services;
+using BlazingPay.UI.Services;
 using BTCPayServer.Client;
 
 namespace BlazingPay.Abstractions.Models
@@ -10,6 +12,8 @@ namespace BlazingPay.Abstractions.Models
 
     public class InstanceRepository
     {
+
+        public event Action StateChanged;
         private Dictionary<string, string> InstanceList;
         private Dictionary<string, BTCPayServerInstance> Instances = new Dictionary<string, BTCPayServerInstance>();
         private readonly IConfigProvider _configProvider;
@@ -25,7 +29,9 @@ namespace BlazingPay.Abstractions.Models
         {
             if (InstanceList is null || refresh)
             {
-                InstanceList = await _configProvider.Get<Dictionary<string, string>>("InstancesList");
+                InstanceList = (await _configProvider.Get<Dictionary<string, string>>("InstancesList")) ?? new Dictionary<string, string>();
+                StateChanged?.Invoke();
+                
             }
 
             return InstanceList;
@@ -43,7 +49,7 @@ namespace BlazingPay.Abstractions.Models
             {
                 return result;
             }
-            Instances.Add(id,result );
+            Instances.TryAdd(id,result );
             
             return result;
         }
@@ -63,15 +69,18 @@ namespace BlazingPay.Abstractions.Models
             }
 
             await _secureConfigProvider.Set($"Instance_{id}", instance);
+            StateChanged?.Invoke();
             return id;
         }
     }
-    
+
     public class BTCPayServerInstance
     {
         public string Label { get; set; }
         public Uri  Url { get; set; }
         public string ApiKey { get; set; }
+        [JsonConverter(typeof(ListJsonConverterConverter<Permission, PermissionJsonConverter>))]
+        public List<Permission> Permissions { get; set; }
 
         public string GetId()
         {
@@ -82,12 +91,6 @@ namespace BlazingPay.Abstractions.Models
         {
             return new BTCPayServerClient(Url, ApiKey);
         }
-    }
-
-    public class UIPreferences
-    {
-        public bool? DarkMode { get; set; }
-        public string DefaultInstanceId { get; set; }
     }
     
     

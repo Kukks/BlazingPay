@@ -1,59 +1,60 @@
-﻿Hi!
-@* @inherits BlazorTransitionableRoute.TransitionableLayoutComponent *@
-@* @using BlazingPay.UI.Services *@
-@* @implements IDisposable *@
-@* @inject UIStateService StateService *@
-@* <ion-split-pane when="sm" content-id="main-content" disabled="@StateService.AnyStackState"> *@
-@*     @if (!StateService.AnyStackState) *@
-@*     { *@
-@*         <ion-menu content-id="main-content"> *@
-@*             <NavMenu/> *@
-@*         </ion-menu> *@
-@*     } *@
-@*     <ion-page class="ion-page" id="main-content"> *@
-@*         <ion-header> *@
-@*             <ion-toolbar> *@
-@*                 <ion-buttons slot="start"> *@
-@*                     @if (StateService.AnyStackState) *@
-@*                     { *@
-@*                         <ion-back-button @onclick="Callback" @onclick:preventDefault="true" default-href="lol"></ion-back-button> *@
-@*                     } *@
-@*                     else *@
-@*                     { *@
-@*                         <ion-menu-button></ion-menu-button> *@
-@*                     } *@
-@*                 </ion-buttons> *@
-@*                 <ion-buttons slot="end"> *@
-@*                     <ion-button href="http://blazor.net" target="_blank">About</ion-button> *@
-@*                 </ion-buttons> *@
-@*                 <ion-title>@StateService.Title</ion-title> *@
-@*             </ion-toolbar> *@
-@*         </ion-header> *@
-@*          *@
-@*     </ion-page> *@
-@* </ion-split-pane> *@
-@* *@
-@* @code{ *@
-@* *@
-@*     protected override void OnInitialized() *@
-@*     { *@
-@*         base.OnInitialized(); *@
-@*         StateService.StateChanged += StateChangedAsync; *@
-@*     } *@
-@* *@
-@*     public void Dispose() *@
-@*     { *@
-@*         StateService.StateChanged -= StateChangedAsync; *@
-@*     } *@
-@* *@
-@*     private async void StateChangedAsync() *@
-@*     { *@
-@*         await InvokeAsync(StateHasChanged); *@
-@*     } *@
-@* *@
-@*     private Task Callback() *@
-@*     { *@
-@*         return StateService.InvokeStackState(); *@
-@*     } *@
-@* *@
-@* } *@
+﻿@inherits BlazorTransitionableRoute.TransitionableLayoutComponent
+@using BlazingPay.UI.Services
+@using BlazingPay.Abstractions.Models
+@implements IDisposable
+@inject UIStateService StateService
+@inject StackService StackService
+@inject UIPreferencesAccessor UIPreferencesAccessor
+<IonSplitPane when="sm" content-id="main-content" disabled="@StackService.AnyStackState">
+    @if (!StackService.AnyStackState)
+    {
+        <IonMenu content-id="main-content">
+            <NavMenu/>
+        </IonMenu>
+    }
+    <IonPage class="ion-page" id="main-content">
+        <IonHeader>
+            <IonToolbar>
+                <IonButtons slot="start">
+                    @if (StackService.AnyStackState)
+                    {
+                        <IonBackButton @onclick="() => StackService.InvokeStackState()"  default-href="lol"></IonBackButton>
+                    }
+                    else
+                    {
+                        <IonMenuButton></IonMenuButton>
+                    }
+                </IonButtons>
+                <IonButtons slot="end">
+                    <IonButton href="http://blazor.net" target="_blank">About</IonButton>
+                </IonButtons>
+                <IonTitle>@StateService.Title</IonTitle>
+            </IonToolbar>
+        </IonHeader>
+        @Body
+    </IonPage>
+</IonSplitPane>
+
+@code{
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        StateService.StateChanged += StateChangedAsync;
+        StackService.StackStateChanged += StateChangedAsync;
+        UIPreferencesAccessor.StateChanged += StateChangedAsync;
+    }
+
+    public void Dispose()
+    {
+        StateService.StateChanged -= StateChangedAsync;
+        StackService.StackStateChanged -= StateChangedAsync;
+        UIPreferencesAccessor.StateChanged -= StateChangedAsync;
+    }
+
+    private async void StateChangedAsync()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+}

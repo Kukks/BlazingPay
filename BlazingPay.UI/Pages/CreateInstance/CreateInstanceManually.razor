@@ -1,0 +1,102 @@
+@page "/instances/create/manual"
+@using System.ComponentModel.DataAnnotations
+@using BlazingPay.Abstractions.Models
+@using BlazingPay.UI.Services
+@using Blazor.Ionic.Models
+@using BTCPayServer.Client
+@inject NavigationManager NavigationManager
+@inject InstanceRepository InstanceRepository
+@inject UIPreferencesAccessor UIPreferences
+@inject StackService StackService
+
+<IonContent class="ion-padding">
+    <EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+        <CustomValidation @ref="customValidation" />
+        <DataAnnotationsValidator></DataAnnotationsValidator>
+        <ValidationSummary />
+        <IonList>
+            <IonItem ValidationField="() => Url">
+                <IonLabel>Url</IonLabel>
+                <IonInput @bind-Value="Url"></IonInput>
+            </IonItem>
+            <IonValidationMessage ValidationField="() => Url"></IonValidationMessage>
+            <IonItem ValidationField="() => ApiKey">
+                <IonLabel>Api Key</IonLabel>
+                <IonInput @bind-Value="ApiKey"></IonInput>
+            </IonItem>
+            <IonValidationMessage ValidationField="() => ApiKey"></IonValidationMessage>
+        </IonList>
+        <IonButton type="submit" disabled="@Submitted">Submit</IonButton>
+    </EditForm>
+    <IonLoading Visible="Submitted && !Successful" message="Testing details.."></IonLoading>
+    <IonToast Visible="Successful" duration="1000" Dismissed="OnDismissed" message="Connected successfully"></IonToast>
+</IonContent>
+
+@code {
+    public bool Submitted { get; set; }
+    public bool Successful { get; set; }
+
+    private CustomValidation customValidation;
+    private string label;
+    [Required]
+    [Url]
+    public string Url { get; set; }
+
+    [Required]
+    public string ApiKey { get; set; }
+    public string CreatedId { get; set; }
+    public async Task OnDismissed(OverlayEventDetail<IonicComponentDismissPayloadData> detail)
+    {
+        if (Successful)
+        {
+         //move on
+
+            await StackService.ClearStack();
+            NavigationManager.NavigateTo("");
+        }
+    }
+
+    EditContext editContext;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(this);
+        NavigationManager.TryGetQueryString("label", out label) ;
+    }
+
+    public async Task OnValidSubmit()
+    {
+        Submitted = true;
+        customValidation.ClearErrors();
+        var errors = new Dictionary<string, List<string>>();
+        try
+        {
+            var client = new BTCPayServerClient(new Uri(Url), ApiKey);
+            var response = await client.GetCurrentAPIKeyInfo();
+            Successful = true;
+            var inst = new BTCPayServerInstance()
+            {
+                Label = string.IsNullOrEmpty(label)? response.Label: label,
+                Url = new Uri(Url),
+                ApiKey = ApiKey,
+                Permissions = response.Permissions.ToList()
+            };
+            CreatedId = await InstanceRepository.Set(inst);
+            var preferences = await UIPreferences.Get();
+            if (preferences.DefaultInstanceId is null)
+            {
+                preferences.DefaultInstanceId = CreatedId;
+                await UIPreferences.Set(preferences);
+            }
+        }
+        catch (Exception e)
+        {
+            errors.Add(nameof(ApiKey), new List<string>(){ "Invalid key"});
+        }
+        if (errors.Any())
+        {
+            customValidation.DisplayErrors(errors);
+        }
+    }
+
+}

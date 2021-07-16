@@ -6,6 +6,10 @@
 </div>
 
 <style>
+.transition > * {
+    height:  calc(100% - 60px) !important;
+}
+ 
  .transition {
      width: 100%;
      height: 100%;
@@ -66,12 +70,9 @@
                 {
                     res += "out ";
                 }
-                Console.WriteLine($"{Transition.IntoView} , {Transition.Backwards}, {Transition.FirstRender}");
                 res += Transition.Backwards ? "slide-out" : "slide-in";
                 
             }
-            
-            Console.WriteLine($"{res}");
             return res;
         }
     }
