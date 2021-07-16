@@ -9,7 +9,6 @@
 
     <ItemGroup>
         <PackageReference Include="Blazor.Extensions.Notifications" Version="0.1.3" />
-        <PackageReference Include="LiveSharp" Version="2.0.13" />
     </ItemGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">

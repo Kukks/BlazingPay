@@ -16,7 +16,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LiveSharp" Version="2.0.13" />
     <PackageReference Include="Microsoft.MobileBlazorBindings" Version="0.5.50-preview" />
     <PackageReference Include="System.Net.Http.Json" Version="3.2.1" />
     <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
